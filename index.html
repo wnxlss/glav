@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>golub — российский мессенджер</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0f1a;
+            color: #eef5ff;
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        /* объёмный фон с глубокими тенями */
+        .volumetric-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 30% 20%, #0f1a2f, #03060c);
+        }
+
+        .volumetric-bg::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(ellipse at 70% 80%, rgba(0, 150, 255, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem 1.5rem 3rem;
+            position: relative;
+            z-index: 20;
+            width: 100%;
+        }
+
+        /* hero секция — объёмная, неоновая */
+        .hero-section {
+            text-align: center;
+            padding: 1.8rem 0 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* российский мессенджер — стильный бейдж */
+        .russia-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(0, 100, 200, 0.2);
+            backdrop-filter: blur(8px);
+            border-radius: 60px;
+            padding: 0.35rem 1.2rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: #7bc5ff;
+            letter-spacing: 0.3px;
+            margin-bottom: 1.2rem;
+            border: 1px solid rgba(0, 150, 255, 0.4);
+            box-shadow: 0 0 12px rgba(0, 120, 255, 0.2);
+        }
+
+        /* заголовок с логотипом в одной строке */
+        .title-row {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-bottom: 0.75rem;
+        }
+
+        .logo-icon {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 50%;
+            filter: drop-shadow(0 0 12px rgba(0, 160, 255, 0.5));
+            transition: filter 0.3s ease;
+            background: #1e88e5;
+        }
+
+        @media (max-width: 560px) {
+            .logo-icon {
+                width: 55px;
+                height: 55px;
+            }
+        }
+
+        .title-3d {
+            font-size: clamp(3.2rem, 10vw, 6rem);
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(145deg, #ffffff, #7bc5ff, #3a9eff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 25px rgba(59, 158, 255, 0.3);
+            line-height: 1.2;
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        /* адаптация для маленьких экранов — чтобы текст не обрезался */
+        @media (max-width: 480px) {
+            .title-row {
+                gap: 0.5rem;
+            }
+            .title-3d {
+                font-size: 2.8rem;
+                white-space: normal;
+                word-break: keep-all;
+            }
+            .logo-icon {
+                width: 48px;
+                height: 48px;
+            }
+        }
+
+        @media (max-width: 380px) {
+            .title-3d {
+                font-size: 2.4rem;
+            }
+        }
+
+        .hero-desc-vol {
+            font-size: clamp(1rem, 4vw, 1.2rem);
+            color: #bbd9ff;
+            max-width: 560px;
+            margin: 0.8rem auto 1.6rem;
+            font-weight: 450;
+            line-height: 1.5;
+            padding: 0 0.5rem;
+            opacity: 0.9;
+        }
+
+        /* объёмная кнопка с неоновым свечением */
+        .btn-volumetric {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: linear-gradient(115deg, #0f5e8c, #1e88e5);
+            border: none;
+            padding: 0.9rem 2.2rem;
+            border-radius: 70px;
+            font-size: clamp(1rem, 4.5vw, 1.25rem);
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+            box-shadow: 0 0 15px rgba(30, 136, 229, 0.5), 0 8px 20px -6px rgba(0,0,0,0.4);
+            transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+            cursor: pointer;
+            letter-spacing: 0.2px;
+            min-width: 220px;
+            touch-action: manipulation;
+        }
+
+        .btn-volumetric:active {
+            transform: scale(0.97);
+            box-shadow: 0 0 20px rgba(30, 136, 229, 0.7);
+        }
+
+        @media (hover: hover) {
+            .btn-volumetric:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 0 25px rgba(30, 136, 229, 0.8), 0 12px 24px -8px black;
+            }
+        }
+
+        /* объёмные карточки с неоновой обводкой при ховере */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 3rem 0 2.8rem;
+        }
+
+        .card-3d {
+            background: rgba(12, 22, 35, 0.75);
+            backdrop-filter: blur(4px);
+            border-radius: 1.8rem;
+            padding: 1.6rem 1.4rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(30, 136, 229, 0.25);
+            box-shadow: 0 20px 30px -15px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+            background: linear-gradient(135deg, rgba(15, 35, 55, 0.85), rgba(8, 20, 32, 0.9));
+        }
+
+        .card-3d:active {
+            transform: scale(0.99);
+        }
+
+        @media (hover: hover) {
+            .card-3d:hover {
+                transform: translateY(-8px);
+                border-color: rgba(30, 136, 229, 0.7);
+                box-shadow: 0 0 18px rgba(30, 136, 229, 0.3), 0 25px 35px -18px black;
+            }
+        }
+
+        .card-icon {
+            font-size: 2.4rem;
+            margin-bottom: 1rem;
+            display: inline-block;
+            filter: drop-shadow(0 0 6px rgba(30, 136, 229, 0.5));
+        }
+
+        .card-3d h3 {
+            font-size: 1.45rem;
+            font-weight: 700;
+            margin-bottom: 0.6rem;
+            background: linear-gradient(135deg, #ffffff, #9acdff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.2px;
+        }
+
+        .card-3d p {
+            font-size: 0.9rem;
+            color: #c0d4f0;
+            line-height: 1.5;
+            font-weight: 400;
+        }
+
+        /* вторичная кнопка */
+        .cta-center {
+            text-align: center;
+            margin: 1rem 0 2rem;
+        }
+
+        .btn-outline-vol {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: rgba(30, 136, 229, 0.12);
+            backdrop-filter: blur(8px);
+            border: 1.5px solid rgba(30, 136, 229, 0.7);
+            padding: 0.7rem 1.8rem;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #9acdff;
+            text-decoration: none;
+            transition: all 0.2s;
+            touch-action: manipulation;
+        }
+
+        .btn-outline-vol:active {
+            transform: scale(0.96);
+            background: rgba(30, 136, 229, 0.25);
+        }
+
+        /* футер */
+        .footer-elegant {
+            margin-top: 3rem;
+            padding-top: 1.8rem;
+            text-align: center;
+            border-top: 1px solid rgba(30, 136, 229, 0.25);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: #8ab3d4;
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .footer-links a:active {
+            color: #5bc0ff;
+        }
+
+        .footer-text {
+            font-size: 0.7rem;
+            color: #7a9bc2;
+            display: flex;
+            justify-content: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            row-gap: 0.5rem;
+        }
+
+        .footer-copyright {
+            font-size: 0.65rem;
+            color: #5f7e9e;
+            margin-top: 0.8rem;
+        }
+
+        /* анимация появления */
+        @keyframes riseGlow {
+            from {
+                opacity: 0;
+                transform: translateY(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-section, .cards-grid .card-3d, .cta-center, .footer-elegant {
+            animation: riseGlow 0.5s ease-out forwards;
+        }
+
+        .cards-grid .card-3d {
+            opacity: 0;
+            animation-fill-mode: forwards;
+        }
+
+        .card-3d:nth-child(1) { animation-delay: 0.02s; }
+        .card-3d:nth-child(2) { animation-delay: 0.05s; }
+        .card-3d:nth-child(3) { animation-delay: 0.08s; }
+        .card-3d:nth-child(4) { animation-delay: 0.11s; }
+        .card-3d:nth-child(5) { animation-delay: 0.14s; }
+        .card-3d:nth-child(6) { animation-delay: 0.17s; }
+        .card-3d:nth-child(7) { animation-delay: 0.20s; }
+        .card-3d:nth-child(8) { animation-delay: 0.23s; }
+
+        @media (max-width: 560px) {
+            .container {
+                padding: 0.8rem 1rem 2rem;
+            }
+            .card-3d {
+                padding: 1.2rem 1rem;
+            }
+            .card-icon {
+                font-size: 2rem;
+            }
+            .card-3d h3 {
+                font-size: 1.25rem;
+            }
+            .btn-volumetric {
+                min-width: 180px;
+                padding: 0.75rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="volumetric-bg"></div>
+
+<div class="container">
+    <div class="hero-section">
+        <!-- текст "российский мессенджер" над названием -->
+        <div class="russia-badge">
+            <span>🇷🇺</span> российский мессенджер
+        </div>
+        <!-- логотип (закруглённый) + название в ряд -->
+        <div class="title-row">
+            <!-- Логотип с border-radius: 50% для круглой формы -->
+            <img class="logo-icon" src="https://i.ibb.co/jvm9NSbs/IMG-1482.jpg" alt="golub logo" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Ccircle cx=\'50\' cy=\'50\' r=\'45\' fill=\'%231e88e5\'/%3E%3Ctext x=\'50\' y=\'70\' font-size=\'48\' text-anchor=\'middle\' fill=\'white\'%3E🕊️%3C/text%3E%3C/svg%3E'">
+            <h1 class="title-3d">golub</h1>
+        </div>
+
+        <!-- текст под названием, затем кнопка -->
+        <p class="hero-desc-vol">
+            Приватность, скорость и свобода общения.
+        </p>
+        
+        <button class="btn-volumetric" id="mainActionBtn">
+            открыть golub →
+        </button>
+        <div style="margin-top: 0.9rem; font-size: 0.7rem; color: #7a9bc2;">
+            защищено · без рекламы · твои данные под защитой
+        </div>
+    </div>
+
+    <!-- объёмные карточки с неоновым акцентом -->
+    <div class="cards-grid">
+        <div class="card-3d">
+            <div class="card-icon">◈</div>
+            <h3>Лаконичная простота</h3>
+            <p>Интерфейс удобный для глаз. Всё интуитивно, быстро и понятно с первого взгляда.</p>
+        </div>
+        <div class="card-3d">
+            <div class="card-icon">◉</div>
+            <h3>Приватность</h3>
+            <p>Сквозное шифрование. Никто не получит доступ к вашим данным.</p>
+        </div>
+        <div class="card-3d">
+            <div class="card-icon">◬</div>
+            <h3>Синхронизация</h3>
+            <p>Все устройства одновременно. Начинайте на телефоне — продолжайте на компьютере.</p>
+        </div>
+        <div class="card-3d">
+            <div class="card-icon">◌</div>
+            <h3>Молниеносность</h3>
+            <p>Доставка сообщений за доли секунды. Оптимизировано даже при слабом соединении.</p>
+        </div>
+        <div class="card-3d">
+            <div class="card-icon">◈</div>
+            <h3>Безлимитные возможности</h3>
+            <p>Файлы любого размера, безлимитная история. Только ваши правила.</p>
+        </div>
+        <div class="card-3d">
+            <div class="card-icon">◍</div>
+            <h3>Надёжная защита</h3>
+            <p>2FA, защита от фишинга, постоянный аудит безопасности.</p>
+        </div>
+        <div class="card-3d">
+            <div class="card-icon">◖◗</div>
+            <h3>Сообщества</h3>
+            <p>Каналы, гибкая модерация. Создавайте комьюнити любого масштаба.</p>
+        </div>
+        <div class="card-3d">
+            <div class="card-icon">◘</div>
+            <h3>Экспрессивность</h3>
+            <p>Темы оформления, кастомные эффекты — ваш уникальный стиль.</p>
+        </div>
+    </div>
+
+    <div class="footer-elegant">
+            <div class="footer-text">
+            <span>Свободное общение без границ</span>
+            <span>Приватность — главный приоритет</span>
+            <span>Открытый код</span>
+        </div>
+        <div class="footer-copyright">
+            © 2025 golub messenger. Российский мессенджер нового поколения.
+        </div>
+    </div>
+</div>
+
+<script>
+    function showModernModal() {
+        const modalRoot = document.createElement('div');
+        modalRoot.style.position = 'fixed';
+        modalRoot.style.top = '0';
+        modalRoot.style.left = '0';
+        modalRoot.style.width = '100%';
+        modalRoot.style.height = '100%';
+        modalRoot.style.backgroundColor = 'rgba(5, 15, 25, 0.9)';
+        modalRoot.style.backdropFilter = 'blur(14px)';
+        modalRoot.style.zIndex = '2000';
+        modalRoot.style.display = 'flex';
+        modalRoot.style.alignItems = 'center';
+        modalRoot.style.justifyContent = 'center';
+        modalRoot.style.fontFamily = "'Inter', system-ui, sans-serif";
+        modalRoot.style.padding = '1rem';
+
+        const modalCard = document.createElement('div');
+        modalCard.style.background = 'linear-gradient(145deg, #102433, #07121f)';
+        modalCard.style.borderRadius = '2rem';
+        modalCard.style.padding = '2rem 1.6rem 1.8rem';
+        modalCard.style.maxWidth = '340px';
+        modalCard.style.width = '90%';
+        modalCard.style.textAlign = 'center';
+        modalCard.style.boxShadow = '0 0 35px rgba(30, 136, 229, 0.4), 0 20px 35px -12px black';
+        modalCard.style.border = '1px solid rgba(30, 136, 229, 0.5)';
+        modalCard.style.animation = 'modalPop 0.25s ease';
+
+        const title = document.createElement('h3');
+        title.innerText = 'golub';
+        title.style.fontSize = '2.2rem';
+        title.style.fontWeight = '800';
+        title.style.background = 'linear-gradient(145deg, #ffffff, #7bc5ff)';
+        title.style.backgroundClip = 'text';
+        title.style.webkitBackgroundClip = 'text';
+        title.style.color = 'transparent';
+        title.style.marginBottom = '0.8rem';
+
+        const desc = document.createElement('p');
+        desc.innerText = 'Добро пожаловать в golub — российский приватный мессенджер.';
+        desc.style.color = '#bbd9ff';
+        desc.style.marginBottom = '1.6rem';
+        desc.style.lineHeight = '1.45';
+        desc.style.fontSize = '0.9rem';
+
+        const openButton = document.createElement('button');
+        openButton.innerText = 'Открыть пространство';
+        openButton.style.background = 'linear-gradient(115deg, #1e88e5, #0f5e8c)';
+        openButton.style.border = 'none';
+        openButton.style.color = 'white';
+        openButton.style.fontWeight = '600';
+        openButton.style.padding = '0.8rem 1.6rem';
+        openButton.style.borderRadius = '60px';
+        openButton.style.fontSize = '0.9rem';
+        openButton.style.cursor = 'pointer';
+        openButton.style.width = '100%';
+        openButton.style.boxShadow = '0 0 12px rgba(30,136,229,0.5)';
+        openButton.style.transition = 'all 0.2s';
+
+        // При нажатии открываем ссылку https://mesendzer.vercel.app/
+        openButton.onclick = () => {
+            window.location.href = 'https://mesendzer.vercel.app/';
+        };
+        
+        openButton.addEventListener('touchstart', () => openButton.style.transform = 'scale(0.97)', { passive: true });
+        openButton.addEventListener('touchend', () => openButton.style.transform = 'scale(1)');
+
+        modalCard.appendChild(title);
+        modalCard.appendChild(desc);
+        modalCard.appendChild(openButton);
+        modalRoot.appendChild(modalCard);
+
+        const styleAnim = document.createElement('style');
+        styleAnim.textContent = `@keyframes modalPop { from { opacity: 0; transform: scale(0.94); } to { opacity: 1; transform: scale(1); } }`;
+        document.head.appendChild(styleAnim);
+        document.body.appendChild(modalRoot);
+    }
+
+    document.getElementById('mainActionBtn')?.addEventListener('click', (e) => { e.preventDefault(); showModernModal(); });
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            requestAnimationFrame(() => {
+                const bgLayer = document.querySelector('.volumetric-bg');
+                if (bgLayer) bgLayer.style.transform = `translateY(${window.scrollY * 0.02}px)`;
+                ticking = false;
+            });
+            ticking = true;
+        }
+    });
+</script>
+</body>
+</html>
